@@ -14,10 +14,15 @@ class trajectory{
         trajectory();
 
         // methods
+        float evaluate_sigmoid(float x);
+        void calculate_trajectory();
+        bool is_valid_trajectory();
+        void reset_trajectory();
 
         // member variables
         const float R;
         const int tangent_factor;
+        const int alt_interval;
 
         vector<float> x_trajectory_values;
         vector<float> y_trajectory_values;
@@ -29,15 +34,16 @@ class trajectory{
         float alt;
 
             // calculated
+        float lat_end;
+        float lon_end;
         float downrange_distance;
         float min_distance;
-        float true_distnce;
+        float true_distance;
         float bearing;
         float line_of_sight_angle;
         float sim_time_elapsed;
         int number_of_points;
 
-
-}
+};
 
 #endif
