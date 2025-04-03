@@ -1,5 +1,8 @@
 #include "trajectory.h"
 
+#include <iostream>
+#include <fstream>
+
 // Constructor
 trajectory::trajectory():R(6371000), alt_interval(50), tangent_factor(10){
     true_distance = 0;
@@ -32,6 +35,21 @@ void trajectory::calculate_trajectory(){
     }
 
     number_of_points = x_trajectory_values.size();
+
+    // Store data
+    std::ofstream output_csv("t1.csv");
+
+    if (!output_csv.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return;
+    }
+
+    output_csv << "x,y" << endl;
+    for(int i = 0; i < number_of_points; i++){
+        output_csv << x_trajectory_values[i] << "," << y_trajectory_values[i] << endl;
+    }
+
+    output_csv.close();
 
 }
 
