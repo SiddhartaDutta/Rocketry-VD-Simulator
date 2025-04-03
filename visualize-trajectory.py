@@ -1,16 +1,18 @@
+import subprocess
+import pandas as pd
 import matplotlib.pyplot as plt
 
-# Sample data
-x = [1, 2, 3, 4, 5]
-y = [2, 4, 1, 3, 5]
+# Run test file
+subprocess.run(["./build/test"])
 
-# Create the plot
-plt.plot(x, y)
+data = pd.read_csv("t1.csv")
 
-# Add labels and title
-plt.xlabel("X-axis")
-plt.ylabel("Y-axis")
-plt.title("Simple Line Plot")
+# Plot data
+plt.plot(data["x"], data["y"], marker="o", linestyle="dotted", color="blue")
+plt.xlabel("Distance from Flight Apex Lat/Lon")
+plt.ylabel("Altitude")
+plt.title("Plot from CSV Data")
+plt.grid(True)
 
-# Show the plot
+# Show plot
 plt.show()
