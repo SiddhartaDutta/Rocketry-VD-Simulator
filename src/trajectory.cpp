@@ -1,4 +1,4 @@
-#include "trajectory.h"
+#include "../header/trajectory.h"
 
 #include <iostream>
 #include <fstream>

@@ -1,6 +1,6 @@
-#include <iostream>
+#include "../header/trajectory.h"
 
-#include "trajectory.h"
+#include <iostream>
 
 using namespace std;
 
