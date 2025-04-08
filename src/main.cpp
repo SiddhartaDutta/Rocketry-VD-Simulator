@@ -20,7 +20,7 @@ int main(int argc, char **argv){
     flight_path.lat_start = std::stof(argv[4]);
     flight_path.lon_start = std::stof(argv[5]);
 
-    if(flight_path.is_valid_trajectory()){
+    if(flight_path.is_valid_trajectory() && flight_path.alt > 0){
         flight_path.calculate_trajectory();
     } else {
         cout << flight_path.is_valid_trajectory() << endl;
