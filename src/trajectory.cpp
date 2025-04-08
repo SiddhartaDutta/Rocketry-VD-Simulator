@@ -39,7 +39,7 @@ void trajectory::calculate_trajectory(){
 
     // Store data
     // Generate File
-    std::ofstream output_csv(generate_data_file_path());
+    std::ofstream output_csv(misc::generate_data_file_path());
 
     if (!output_csv.is_open()) {
         std::cerr << "Error generating file." << std::endl;
