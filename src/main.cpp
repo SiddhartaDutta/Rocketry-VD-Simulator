@@ -4,19 +4,28 @@
 
 using namespace std;
 
-int main(){
-    trajectory new_trajectory = trajectory();
+int main(int argc, char **argv){
 
-    new_trajectory.lat_start = 28.660;
-    new_trajectory.lon_start = -80.167;
-    new_trajectory.height = 35500;
-    new_trajectory.lat_end = 28.870;
-    new_trajectory.lon_end = -79.969;
-
-    if(new_trajectory.is_valid_trajectory()){
-        new_trajectory.calculate_trajectory();
-    } else {
-        cout << new_trajectory.is_valid_trajectory() << endl;
+    // Check input format
+    if(argc != 6){
+        printf("[ERROR] Invalid input format/length (lat_start, lon_start, alt, lat_end, lon_end)\n");
+        return 1;
     }
 
+    trajectory flight_path = trajectory();
+    
+    flight_path.lat_start = std::stof(argv[1]);
+    flight_path.lon_start = std::stof(argv[2]);
+    flight_path.alt = std::stof(argv[3]);
+    flight_path.lat_start = std::stof(argv[4]);
+    flight_path.lon_start = std::stof(argv[5]);
+
+    if(flight_path.is_valid_trajectory()){
+        flight_path.calculate_trajectory();
+    } else {
+        cout << flight_path.is_valid_trajectory() << endl;
+        return 1;
+    }
+
+    return 0;
 }
