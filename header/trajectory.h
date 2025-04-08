@@ -28,7 +28,6 @@ class trajectory{
         vector<float> y_trajectory_values;
 
             // user provided
-        float height;
         float lat_start;
         float lon_start;
         float alt;
