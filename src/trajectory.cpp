@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 // Constructor
 trajectory::trajectory():R(6371000), alt_interval(50), tangent_factor(10){
@@ -39,17 +40,19 @@ void trajectory::calculate_trajectory(){
 
     // Store data
     // Generate File
-    std::ofstream output_csv(misc::generate_data_file_path());
-
+    string run_data_path = misc::generate_data_file_path();
+    std::ofstream output_csv(run_data_path);
     if (!output_csv.is_open()) {
         std::cerr << "Error generating file." << std::endl;
         return;
     }
 
-    output_csv << "x,y" << endl;
-    for(int i = 0; i < number_of_points; i++){
-        output_csv << x_trajectory_values[i] << "," << y_trajectory_values[i] << endl;
-    }
+    // Store to run-specific csv
+    // output_csv << "x,y" << endl;
+    // for(int i = 0; i < number_of_points; i++){
+    //     output_csv << x_trajectory_values[i] << "," << y_trajectory_values[i] << endl;
+    // }
+    misc::record_to_log_file(run_data_path, x_trajectory_values, y_trajectory_values, vehicle_speed, thrust);
 
     output_csv.close();
 

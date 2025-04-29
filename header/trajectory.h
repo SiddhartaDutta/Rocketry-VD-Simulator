@@ -26,6 +26,8 @@ class trajectory{
 
         vector<float> x_trajectory_values;
         vector<float> y_trajectory_values;
+        vector<float> vehicle_speed;
+        vector<float> thrust;
 
             // user provided
         float lat_start;
