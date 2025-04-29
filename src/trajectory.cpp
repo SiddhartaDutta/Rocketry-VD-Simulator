@@ -50,7 +50,12 @@ void trajectory::calculate_trajectory(){
     // Store to run-specific csv
     misc::record_to_log_file(run_data_path, x_trajectory_values, y_trajectory_values, vehicle_speed, thrust);
 
-    output_csv.close();
+    // Store to manifest
+    float lls[2] = {lat_start, lon_start};
+    float lle[2] = {lat_end, lon_end};
+    misc::record_to_manifest(run_data_path, lls, lle, alt, is_valid_trajectory());
+
+    output_csv.close(); 
 
 }
 
