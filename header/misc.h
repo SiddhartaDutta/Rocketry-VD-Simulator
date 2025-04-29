@@ -14,7 +14,6 @@ namespace fs = std::filesystem;
 
 namespace misc {
     std::string generate_data_file_path() {
-
         // Locate data folder
         fs::path target_path = fs::canonical(fs::read_symlink("/proc/self/exe"));
         target_path = target_path.parent_path().parent_path().append("data");
@@ -84,12 +83,13 @@ namespace misc {
             std::ofstream output(output_csv);
 
             // Write column titles
-            output << "alititude, downrange_dist, vehicle_speed, thrust" << std::endl;
+            output << "downrange_dist, alititude, vehicle_speed, thrust" << std::endl;
 
             for(int i = 0; i < downrange_dist.size(); i++){
-                output << altitude[i] << ',' << downrange_dist[i] << ',' << vehicle_speed[i] << ',' << thrust[i] << std::endl;
+                output << downrange_dist[i] << ',' << altitude[i] << ',' << "temp" << ',' << "temp" << std::endl;
             }
 
+            output.close();
             return 0;
         } catch (const std::runtime_error& error){
             std::cerr << "Error: " << error.what() << std::endl;

@@ -48,10 +48,6 @@ void trajectory::calculate_trajectory(){
     }
 
     // Store to run-specific csv
-    // output_csv << "x,y" << endl;
-    // for(int i = 0; i < number_of_points; i++){
-    //     output_csv << x_trajectory_values[i] << "," << y_trajectory_values[i] << endl;
-    // }
     misc::record_to_log_file(run_data_path, x_trajectory_values, y_trajectory_values, vehicle_speed, thrust);
 
     output_csv.close();
