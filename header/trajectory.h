@@ -26,29 +26,29 @@ class Trajectory{
 
         // member variables
         const float R;
-        const int tangent_factor;
-        const int alt_interval;
+        const int tangentFactor;
+        const int altInterval;
 
-        vector<float> x_trajectory_values;
-        vector<float> y_trajectory_values;
-        vector<float> vehicle_speed;
+        vector<float> xTrajectoryValues;
+        vector<float> yTrajectoryValues;
+        vector<float> vehicleSpeed;
         vector<float> thrust;
 
             // user provided
-        float lat_start;
-        float lon_start;
+        float latStart;
+        float lonStart;
         float alt;
 
             // calculated
-        float lat_end;
-        float lon_end;
-        float downrange_distance;
-        float min_distance;
-        float true_distance;
+        float latEnd;
+        float lonEnd;
+        float downrangeDistance;
+        float minDistance;
+        float trueDistance;
         float bearing;
-        float line_of_sight_angle;
-        float sim_time_elapsed;
-        int number_of_points;
+        float lineOfSightAngle;
+        float simTimeElapsed;
+        int numberOfPoints;
 
 };
 

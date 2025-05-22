@@ -14,16 +14,16 @@ int main(int argc, char **argv){
 
     Trajectory flight_path = Trajectory();
     
-    flight_path.lat_start = std::stof(argv[1]);
-    flight_path.lon_start = std::stof(argv[2]);
+    flight_path.latStart = std::stof(argv[1]);
+    flight_path.lonStart = std::stof(argv[2]);
     flight_path.alt = std::stof(argv[3]);
-    flight_path.lat_end = std::stof(argv[4]);
-    flight_path.lon_end = std::stof(argv[5]);
+    flight_path.latStart = std::stof(argv[4]);
+    flight_path.lonEnd = std::stof(argv[5]);
 
-    if(flight_path.is_valid_trajectory() && flight_path.alt > 0){
-        flight_path.calculate_trajectory();
+    if(flight_path.isValidTrajectory() && flight_path.alt > 0){
+        flight_path.calculateTrajectory();
     } else {
-        cout << flight_path.is_valid_trajectory() << endl;
+        cout << flight_path.isValidTrajectory() << endl;
         return 1;
     }
 

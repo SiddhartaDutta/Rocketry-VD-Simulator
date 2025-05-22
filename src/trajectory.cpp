@@ -6,37 +6,37 @@
 #include <vector>
 
 // Constructor
-Trajectory::Trajectory():R(6371000), alt_interval(0.025), tangent_factor(10){
-    true_distance = 0;
+Trajectory::Trajectory():R(6371000), altInterval(0.025), tangentFactor(10){
+    trueDistance = 0;
 }
 
 float Trajectory::evaluateSigmoid(float x){
 
-    float sigmoid_factor = 1/(1 + exp(-(x-0.5*alt)/(alt/tangent_factor)));
-    return downrange_distance * sigmoid_factor;
+    float sigmoid_factor = 1/(1 + exp(-(x-0.5*alt)/(alt/tangentFactor)));
+    return downrangeDistance * sigmoid_factor;
 
 }
 
 void Trajectory::calculateTrajectory(){
     int temp_count = 0;
     
-    for(int i = 0; i <= (int)alt; i += alt_interval){
+    for(int i = 0; i <= (int)alt; i += altInterval){
         temp_count++;
 
-        x_trajectory_values.push_back(evaluateSigmoid((float)i));
-        y_trajectory_values.push_back(-(float)i + alt);
+        xTrajectoryValues.push_back(evaluateSigmoid((float)i));
+        yTrajectoryValues.push_back(-(float)i + alt);
 
         if(temp_count >= 2){
-            true_distance += sqrt(pow(x_trajectory_values[temp_count-1]-x_trajectory_values[temp_count-2], 2) + pow(y_trajectory_values[temp_count-1]-y_trajectory_values[temp_count-2], 2));
+            trueDistance += sqrt(pow(xTrajectoryValues[temp_count-1]-xTrajectoryValues[temp_count-2], 2) + pow(yTrajectoryValues[temp_count-1]-yTrajectoryValues[temp_count-2], 2));
         }
     }
 
-    if(y_trajectory_values.back() != 0){
-        x_trajectory_values.push_back(evaluateSigmoid((float)alt));
-        y_trajectory_values.push_back(0);
+    if(yTrajectoryValues.back() != 0){
+        xTrajectoryValues.push_back(evaluateSigmoid((float)alt));
+        yTrajectoryValues.push_back(0);
     }
 
-    number_of_points = x_trajectory_values.size();
+    numberOfPoints = xTrajectoryValues.size();
 
     // Store data
     // Generate File
@@ -48,11 +48,11 @@ void Trajectory::calculateTrajectory(){
     }
 
     // Store to run-specific csv
-    misc::record_to_log_file(run_data_path, x_trajectory_values, y_trajectory_values, vehicle_speed, thrust);
+    misc::record_to_log_file(run_data_path, xTrajectoryValues, yTrajectoryValues, vehicleSpeed, thrust);
 
     // Store to manifest
-    float lls[2] = {lat_start, lon_start};
-    float lle[2] = {lat_end, lon_end};
+    float lls[2] = {latStart, lonStart};
+    float lle[2] = {latEnd, lonEnd};
     misc::record_to_manifest(run_data_path, lls, lle, alt, isValidTrajectory());
 
     output_csv.close(); 
@@ -60,30 +60,30 @@ void Trajectory::calculateTrajectory(){
 }
 
 void Trajectory::resetTrajectory(){
-    x_trajectory_values.clear();
-    y_trajectory_values.clear();
-    number_of_points = true_distance = alt = downrange_distance = 0;
+    xTrajectoryValues.clear();
+    yTrajectoryValues.clear();
+    numberOfPoints = trueDistance = alt = downrangeDistance = 0;
 }
 
 bool Trajectory::isValidTrajectory(){
-    float phi1 = lat_start * (M_PI / 180.0);
-    float phi2 = lat_end * (M_PI / 180.0);
-    float lam1 = lon_start * (M_PI / 180.0);
-    float lam2 = lon_end * (M_PI / 180.0);
+    float phi1 = latStart * (M_PI / 180.0);
+    float phi2 = latEnd * (M_PI / 180.0);
+    float lam1 = lonStart * (M_PI / 180.0);
+    float lam2 = lonEnd * (M_PI / 180.0);
     float dphi = phi2 - phi1;
     float dlam = lam2 - lam1;
 
     float a = pow(sin(dphi / 2), 2) + cos(phi1) * cos(phi2) * pow(sin(dlam / 2), 2);
-    downrange_distance = R * atan2(sqrt(a), sqrt(1 - a));
+    downrangeDistance = R * atan2(sqrt(a), sqrt(1 - a));
     // downrange_distance = 2 * R * asin(sqrt(a));
 
-    line_of_sight_angle = atan(alt / downrange_distance) * (180 / M_PI);
+    lineOfSightAngle = atan(alt / downrangeDistance) * (180 / M_PI);
 
     bearing = (atan2(sin(dlam) * cos(phi2), cos(phi1) * sin(phi2) - sin(phi1) * cos(phi2) * cos(dlam))) * (180 / M_PI);
 
-    min_distance = sqrt(pow(alt, 2) + pow(downrange_distance, 2));
+    minDistance = sqrt(pow(alt, 2) + pow(downrangeDistance, 2));
 
-    if (line_of_sight_angle < 0.0) {
+    if (lineOfSightAngle < 0.0) {
         return false;
     }
 
