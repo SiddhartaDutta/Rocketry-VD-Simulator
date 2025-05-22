@@ -7,20 +7,21 @@ import matplotlib.pyplot as plt
 file_location = os.path.abspath(__file__)
 file_location = os.path.dirname(file_location)
 os.chdir(file_location)
+print(file_location)
 
 # Run test file
-exit_code = subprocess.run(["./build/test"])
-if exit_code:
-    print('[ERROR] Error while running .exe, quitting...')
-    quit()
+# exit_code = subprocess.run(["./build/test"])
+# if exit_code:
+#     print('[ERROR] Error while running .exe, quitting...')
+#     quit()
 
-data = pd.read_csv("/data/t1.csv")
+data = pd.read_csv("data/t1.csv")
 
 # Plot data
 plt.plot(data["x"], data["y"], marker="o", linestyle="dotted", color="blue")
 plt.xlabel("Absolute Distance from Apogee (Lat/Lon)")
 plt.ylabel("Altitude")
-plt.title("Altitude Suggestion Based on Rocket Apogee & Landing Location Coordinates")
+plt.title("Estimated Landing Trajectory")
 plt.grid(True)
 
 # Show plot
