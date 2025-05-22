@@ -49,7 +49,7 @@ namespace misc {
         target_path = target_path.parent_path().parent_path().append("data/manifest.csv");
 
         try{
-            std::ofstream manifest_csv(target_path);
+            std::ofstream manifest_csv(target_path, std::ios::app);
 
             // Store to manifest
             manifest_csv 
