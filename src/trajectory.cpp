@@ -10,20 +10,20 @@ Trajectory::Trajectory():R(6371000), alt_interval(0.025), tangent_factor(10){
     true_distance = 0;
 }
 
-float Trajectory::evaluate_sigmoid(float x){
+float Trajectory::evaluateSigmoid(float x){
 
     float sigmoid_factor = 1/(1 + exp(-(x-0.5*alt)/(alt/tangent_factor)));
     return downrange_distance * sigmoid_factor;
 
 }
 
-void Trajectory::calculate_trajectory(){
+void Trajectory::calculateTrajectory(){
     int temp_count = 0;
     
     for(int i = 0; i <= (int)alt; i += alt_interval){
         temp_count++;
 
-        x_trajectory_values.push_back(evaluate_sigmoid((float)i));
+        x_trajectory_values.push_back(evaluateSigmoid((float)i));
         y_trajectory_values.push_back(-(float)i + alt);
 
         if(temp_count >= 2){
@@ -32,7 +32,7 @@ void Trajectory::calculate_trajectory(){
     }
 
     if(y_trajectory_values.back() != 0){
-        x_trajectory_values.push_back(evaluate_sigmoid((float)alt));
+        x_trajectory_values.push_back(evaluateSigmoid((float)alt));
         y_trajectory_values.push_back(0);
     }
 
@@ -53,19 +53,19 @@ void Trajectory::calculate_trajectory(){
     // Store to manifest
     float lls[2] = {lat_start, lon_start};
     float lle[2] = {lat_end, lon_end};
-    misc::record_to_manifest(run_data_path, lls, lle, alt, is_valid_trajectory());
+    misc::record_to_manifest(run_data_path, lls, lle, alt, isValidTrajectory());
 
     output_csv.close(); 
 
 }
 
-void Trajectory::reset_trajectory(){
+void Trajectory::resetTrajectory(){
     x_trajectory_values.clear();
     y_trajectory_values.clear();
     number_of_points = true_distance = alt = downrange_distance = 0;
 }
 
-bool Trajectory::is_valid_trajectory(){
+bool Trajectory::isValidTrajectory(){
     float phi1 = lat_start * (M_PI / 180.0);
     float phi2 = lat_end * (M_PI / 180.0);
     float lam1 = lon_start * (M_PI / 180.0);

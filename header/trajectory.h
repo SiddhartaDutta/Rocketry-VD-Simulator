@@ -14,10 +14,15 @@ class Trajectory{
         Trajectory();
 
         // methods
-        float evaluate_sigmoid(float x);
-        void calculate_trajectory();
-        bool is_valid_trajectory();
-        void reset_trajectory();
+        float evaluateSigmoid(float x);
+        void calculateTrajectory();
+        bool isValidTrajectory();
+        void resetTrajectory();
+
+        // data loggers
+        std::string generateOutputPath();
+        bool logToManifest(std::string output_csv, float lat_lon_start[], float lat_lon_end[], float altitude, bool feasible);
+        bool recordParquetLog(std::string output_csv, std::vector<float> downrange_dist, std::vector<float> altitude, std::vector<float> vehicle_speed, std::vector<float> thrust);
 
         // member variables
         const float R;
