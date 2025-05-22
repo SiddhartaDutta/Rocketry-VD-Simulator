@@ -12,7 +12,7 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    trajectory flight_path = trajectory();
+    Trajectory flight_path = Trajectory();
     
     flight_path.lat_start = std::stof(argv[1]);
     flight_path.lon_start = std::stof(argv[2]);

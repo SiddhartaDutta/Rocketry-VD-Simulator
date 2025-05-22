@@ -8,10 +8,10 @@ using namespace std;
 
 #pragma once
 
-class trajectory{
+class Trajectory{
     public:
         // constructor
-        trajectory();
+        Trajectory();
 
         // methods
         float evaluate_sigmoid(float x);

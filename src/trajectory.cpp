@@ -6,18 +6,18 @@
 #include <vector>
 
 // Constructor
-trajectory::trajectory():R(6371000), alt_interval(50), tangent_factor(10){
+Trajectory::Trajectory():R(6371000), alt_interval(0.025), tangent_factor(10){
     true_distance = 0;
 }
 
-float trajectory::evaluate_sigmoid(float x){
+float Trajectory::evaluate_sigmoid(float x){
 
     float sigmoid_factor = 1/(1 + exp(-(x-0.5*alt)/(alt/tangent_factor)));
     return downrange_distance * sigmoid_factor;
 
 }
 
-void trajectory::calculate_trajectory(){
+void Trajectory::calculate_trajectory(){
     int temp_count = 0;
     
     for(int i = 0; i <= (int)alt; i += alt_interval){
@@ -59,13 +59,13 @@ void trajectory::calculate_trajectory(){
 
 }
 
-void trajectory::reset_trajectory(){
+void Trajectory::reset_trajectory(){
     x_trajectory_values.clear();
     y_trajectory_values.clear();
     number_of_points = true_distance = alt = downrange_distance = 0;
 }
 
-bool trajectory::is_valid_trajectory(){
+bool Trajectory::is_valid_trajectory(){
     float phi1 = lat_start * (M_PI / 180.0);
     float phi2 = lat_end * (M_PI / 180.0);
     float lam1 = lon_start * (M_PI / 180.0);
