@@ -1,4 +1,3 @@
-#include "../header/misc.h"
 #include "../header/trajectory.h"
 
 #include <iostream>
@@ -44,7 +43,7 @@ void Trajectory::calculateTrajectory(){
 
     // Store data
     // Generate File
-    std::string run_data_path = misc::generate_data_file_path();
+    std::string run_data_path = generateOutputPath();
     std::ofstream output_csv(run_data_path);
     if (!output_csv.is_open()) {
         std::cerr << "Error generating file." << std::endl;
