@@ -1,10 +1,9 @@
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
 
+#include <string>
 #include <vector>
 #include <math.h>
-
-using namespace std;
 
 #pragma once
 
@@ -29,10 +28,10 @@ class Trajectory{
         const int tangentFactor;
         const int altInterval;
 
-        vector<float> xTrajectoryValues;
-        vector<float> yTrajectoryValues;
-        vector<float> vehicleSpeed;
-        vector<float> thrust;
+        std::vector<float> xTrajectoryValues;
+        std::vector<float> yTrajectoryValues;
+        std::vector<float> vehicleSpeed;
+        std::vector<float> thrust;
 
             // user provided
         float latStart;

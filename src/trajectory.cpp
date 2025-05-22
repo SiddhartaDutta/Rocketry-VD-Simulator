@@ -5,8 +5,12 @@
 #include <fstream>
 #include <vector>
 
+#include <filesystem>
+#include <algorithm>
+#include <thread>
+
 // Constructor
-Trajectory::Trajectory():R(6371000), altInterval(0.025), tangentFactor(10){
+Trajectory::Trajectory():R(6371000), altInterval(50), tangentFactor(10){
     trueDistance = 0;
 }
 
@@ -40,7 +44,7 @@ void Trajectory::calculateTrajectory(){
 
     // Store data
     // Generate File
-    string run_data_path = misc::generate_data_file_path();
+    std::string run_data_path = misc::generate_data_file_path();
     std::ofstream output_csv(run_data_path);
     if (!output_csv.is_open()) {
         std::cerr << "Error generating file." << std::endl;
@@ -48,12 +52,12 @@ void Trajectory::calculateTrajectory(){
     }
 
     // Store to run-specific csv
-    misc::record_to_log_file(run_data_path, xTrajectoryValues, yTrajectoryValues, vehicleSpeed, thrust);
+    recordParquetLog(run_data_path, xTrajectoryValues, yTrajectoryValues, vehicleSpeed, thrust);
 
     // Store to manifest
     float lls[2] = {latStart, lonStart};
     float lle[2] = {latEnd, lonEnd};
-    misc::record_to_manifest(run_data_path, lls, lle, alt, isValidTrajectory());
+    logToManifest(run_data_path, lls, lle, alt, isValidTrajectory());
 
     output_csv.close(); 
 
@@ -91,6 +95,8 @@ bool Trajectory::isValidTrajectory(){
 }
 
 // -----
+
+namespace fs = std::filesystem;
 
 std::string Trajectory::generateOutputPath() {
     // Locate data folder
