@@ -5,6 +5,8 @@
 #include <vector>
 #include <math.h>
 
+#include <arrow/status.h>
+
 #pragma once
 
 class Trajectory{
@@ -20,8 +22,16 @@ class Trajectory{
 
         // data loggers
         std::string generateOutputPath();
-        bool logToManifest(std::string output_csv, float lat_lon_start[], float lat_lon_end[], float altitude, bool feasible);
-        bool recordParquetLog(std::string output_csv, std::vector<float> downrange_dist, std::vector<float> altitude, std::vector<float> vehicle_speed, std::vector<float> thrust);
+        bool logToManifest(const std::string& output_csv,
+                           const float* lat_lon_start,
+                           const float* lat_lon_end,
+                           const float& altitude,
+                           const bool& feasible);
+        arrow::Status recordParquetLog(const std::string& output_csv, 
+                              const std::vector<float>& downrange_dist,
+                              const std::vector<float>& altitude,
+                              const std::vector<float>& vehicle_speed,
+                              const std::vector<float>& thrust);
 
         // member variables
         const float R;

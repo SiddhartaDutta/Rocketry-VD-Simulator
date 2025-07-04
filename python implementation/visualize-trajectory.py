@@ -9,13 +9,8 @@ file_location = os.path.dirname(file_location)
 os.chdir(file_location)
 print(file_location)
 
-# Run test file
-# exit_code = subprocess.run(["./build/test"])
-# if exit_code:
-#     print('[ERROR] Error while running .exe, quitting...')
-#     quit()
 
-data = pd.read_csv("data/t1.csv")
+data = pd.read_parquet('../data/59-126901327188416.parquet')
 
 # Plot data
 plt.plot(data["x"], data["y"], marker="o", linestyle="dotted", color="blue")

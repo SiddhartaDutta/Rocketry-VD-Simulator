@@ -1,15 +1,21 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 project(RocketryVD)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(../header)
-include_directories(/home/siddh/vcpkg/installed/x64-linux/include)
+# Conan-generated toolchain must be included early
+include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake OPTIONAL)
 
-link_directories(/home/siddh/vcpkg/installed/x64-linux/lib)
+# Find Arrow and Parquet provided by Conan
+find_package(Arrow REQUIRED CONFIG)
+find_package(Parquet REQUIRED CONFIG)
 
-add_executable(test ../src/main.cpp ../src/trajectory.cpp)
+add_executable(test
+    src/main.cpp
+    src/trajectory.cpp
+)
 
-# Link directly to static libraries
-target_link_libraries(test PRIVATE arrow parquet)
+target_link_libraries(test PRIVATE Arrow::arrow_shared Parquet::parquet_shared)
+
+# Add your headers directory
+target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR}/header)
