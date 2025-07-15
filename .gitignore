@@ -4,3 +4,4 @@
 *.csv
 *.parquet
 notes.txt
+*/__pycache__
