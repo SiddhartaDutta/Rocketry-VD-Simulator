@@ -8,7 +8,8 @@
         "dimensions": {
             "height_m": 41.2,
             "diameter_m": 3.7,
-            "drag_coeff": 1
+            "drag_coeff": 1,
+            "dry_weight": 500
         },
         "fuel": {
             "fuel_density": 1,
