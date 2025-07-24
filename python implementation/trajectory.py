@@ -38,8 +38,8 @@ class Trajectory:
         """
         Compute the downrange distance scaled by a sigmoid curve of altitude.
         """
-        factor = 1 / (1 + math.exp(-(x - 0.5 * self.alt) / (self.alt / self.tangent_factor)))
-        return self.downrange_distance * factor
+        factor = 1 / (1 + math.exp(-(x - 0.1 * self.alt) / (self.alt / self.tangent_factor)))
+        return self.downrange_distance * factor 
 
     def calculate_trajectory(self) -> None:
         """

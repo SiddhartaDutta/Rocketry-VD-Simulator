@@ -16,3 +16,9 @@ def process_memory():
     return mem_info.rss
 
 
+import pyarrow.parquet as pq
+
+t1 = pq.read_table('../data/58-128114831827392.parquet')
+t2 = pq.read_table('../data/57-139498284335552.parquet')
+
+assert t1.equals(t2)

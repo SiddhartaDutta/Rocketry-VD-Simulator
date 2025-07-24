@@ -10,7 +10,7 @@ os.chdir(file_location)
 print(file_location)
 
 
-data = pd.read_parquet('../data/55-133766305890752.parquet')
+data = pd.read_parquet('../data/60-126726977356224.parquet')
 
 # Plot data
 plt.plot(data["x"], data["y"], marker="o", linestyle="dotted", color="blue")
