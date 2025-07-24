@@ -5,3 +5,4 @@
 *.parquet
 notes.txt
 */__pycache__
+*/test.py
