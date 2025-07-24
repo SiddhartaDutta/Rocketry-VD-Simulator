@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 
 
 class Trajectory:
-    def __init__(self, alt_interval: int = 50, tangent_factor: int = 10, R: float = 6_371_000):
+    def __init__(self, alt_interval: int = 1, tangent_factor: int = 10, R: float = 6_371_000):
         # Earth radius, sampling interval, and curve factor
         self.R = R
         self.alt_interval = alt_interval
