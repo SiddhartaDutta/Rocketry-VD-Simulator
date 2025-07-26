@@ -9,28 +9,50 @@ class Rocket:
             json_data = json.load(file)
 
         self.engine_count = json_data['rocket']['engine']['engine_count']   # number
-        self.max_thrust = json_data['rocket']['engine']['max_thrust_kN']    # kN
-        self.min_thrust = json_data['rocket']['engine']['min_thrust_kN']    # kN
+        self.max_thrust = json_data['rocket']['engine']['max_thrust_N']    # N
+        self.min_throttle = json_data['rocket']['engine']['min_throttle']    # fraction (0.0-1.0)
+        self.burn_rate = json_data['rocket']['engine']['burn_rate']
 
         self.height = json_data['rocket']['dimensions']['height_m']         # m
         self.diameter = json_data['rocket']['dimensions']['diameter_m']     # m
         self.drag_coeff = json_data['rocket']['dimensions']['drag_coeff']   # ratio
         self.dry_weight = json_data['rocket']['dimensions']['dry_weight']   # kg
+        self.max_q = json_data['rocket']['dimensions']['max_q']
 
         self.fuel_density = json_data['rocket']['fuel']['fuel_density']     # 
         self.OtF_ratio = json_data['rocket']['fuel']['OtF_ratio']           # ratio
         self.ox_density = json_data['rocket']['fuel']['ox_density']         # 
 
+        self.gravity = 0.0
+        self.thrust_v = 0.0           # N
+        self.thrust_h = 0.0     # N
+        self.dynamic_pressure = 0.0
+        self.acceleration_v = 0.0     # m/s^2
+        self.acceleration_h = 0.0
+        self.velocity_v = 0.0        # m/s
+        self.velocity_h = json_data['rocket']['physics']['h_vel_at_apogee']        # m/s
         self.altitude = altitude    # m
-        self.acceleration = 0.0     # m/s^2
-        self.velocity = 0.0         # m/s
-        self.velocity_horiz = 0.0   # m/s
-        self.thrust = 0.0           # N
-        self.thrust_horiz = 0.0     # N
+        self.x_position = 0.0
+        self.angle = 0.0 # vertical
+
+        self.d_time = json_data['rocket']['physics']['d_time']
 
         self.fuel = 0.0             # kg
         self.oxidizer = 0.0         # kg
-        self.throttle = 0.0         # %
+        self.throttle = 0.0         # fraction (0.0-1.0)
+        self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
+        self.total_mass = self.dry_weight + self.total_fuel_mass
+
+    def burn_fuel(self):
+        fuel_used = self.burn_rate * self.throttle * self.engine_count * self.d_time
+
+        if fuel_used > self.fuel:
+            fuel_used = self.fuel
+            self.throttle = 0
+
+        self.fuel -= fuel_used
+        self.oxidizer -= fuel_used * self.OtF_ratio
+
         self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
         self.total_mass = self.dry_weight + self.total_fuel_mass
 
@@ -40,35 +62,103 @@ class Rocket:
         return rho0 * math.exp(-self.altitude / H)
 
     def compute_dynamic_pressure(self) -> float:
-        rho = self.air_density_at_altitude(self.altitude)
-        return 0.5 * rho * self.velocity**2
+        rho = self.compute_air_density_at_altitude()
+        velocity_total = math.sqrt(self.velocity_h**2 + self.velocity_v**2)
+        return 0.5 * rho * velocity_total**2
 
-    def compute_g_const_at_altitude(self) -> float:
+    def compute_air_temp(self) -> float:
+        pass
+
+    def compute_speed_of_sound(self) -> float:
+        pass
+
+    def compute_mach_number(self) -> float:
+        pass
+
+    def compute_air_viscosity(self) -> float:
+        pass
+
+    def compute_reynolds_number(self) -> float:
+        pass
+
+    def compute_angle_of_attack(self) -> float:
+        pass
+
+    def compute_Cd(self) -> float:
+        pass
+
+    def compute_accel_gravity_at_altitude(self) -> float:
         g0 = 9.80665
         R = 6.371e6
         return g0 * (R / (R + self.altitude)) ** 2
     
     def compute_F_gravity(self) -> float:
-        return self.total_mass
+        return self.total_mass * self.compute_accel_gravity_at_altitude()
     
+    def compute_F_thrust(self) -> float:
+        return self.throttle * self.max_thrust * self.engine_count
     
 
     def step(self):
 
-        # find force of gravity
-        force_gravity = self.total_mass * self.gravity_at_altitude()
+        # ensure min throttle
+        if self.throttle < self.min_throttle and self.throttle != 0.0:
+            self.throttle = self.min_throttle
 
-        # find force of thrust
-        force_thrust = self.burnrate * 
+        # update fuel/mass
+        self.burn_fuel()
 
-        # max q
+        # update gravity
+        self.gravity = self.compute_F_gravity()
+
+        # update thrust
+        thrust_total = self.compute_F_thrust()
+        self.thrust_v = thrust_total * math.cos(self.angle)
+        self.thrust_h = thrust_total * math.sin(self.angle)
+
+
+        # update dynamic pressure on vehicle
+        self.dynamic_pressure = self.compute_dynamic_pressure()
+
+        # validate maxQ
+        if self.dynamic_pressure > self.max_q:
+            pass
+
+        # update acceleration
+        self.acceleration_v = (self.thrust_v - self.gravity) / self.total_mass
+        self.acceleration_h = self.thrust_h / self.total_mass
+
+        # update velocity
+        self.velocity_v += self.acceleration_v * self.d_time
+        self.velocity_h += self.acceleration_h * self.d_time
+
+        # update position
+        self.altitude += self.velocity_v * self.d_time
+        self.x_position += self.velocity_h * self.d_time
+
+
+
+            # verify position
+        if self.altitude < 0:
+            self.altitude = 0
+            self.velocity_v = 0
+            self.velocity_h = 0
+        
         pass
 
     def get_state(self):
-        return self.altitude, self.acceleration, self.velocity
+        return {
+            "altitude": self.altitude,
+            "x_pos": self.x_position,
+            "velocity_v": self.velocity_v,
+            "velocity_h": self.velocity_h,
+            "accel_v": self.acceleration_v,
+            "accel_h": self.acceleration_h,
+            "angle": self.angle,
+            "dynamic_pressure": self.dynamic_pressure,
+            "total_mass": self.total_mass,
+            "fuel_remaining": self.fuel,
+            "throttle": self.throttle
+        }
 
-    def print(self):
-        print(self.ox_density)
         
-rocket = Rocket('../data/rocket.json')
-rocket.print()
