@@ -228,10 +228,7 @@ class Rocket:
         pass
 
     def get_debug(self):
-        return {
-            
-        }
-        pass
+        return self.__dict__
 
     def get_state(self):
         return {
