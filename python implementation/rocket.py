@@ -196,8 +196,9 @@ class Rocket:
 
         # update drag
         drag_total = self.compute_F_drag()
-        self.drag_v = drag_total * math.cos(self.angle)
-        self.drag_h = drag_total * math.sin(self.angle)
+        angle_velocity = math.atan2(self.velocity_h, self.velocity_v)
+        self.drag_v = -drag_total * math.cos(angle_velocity)
+        self.drag_h = -drag_total * math.sin(angle_velocity)
 
         # update dynamic pressure on vehicle
         self.dynamic_pressure = self.compute_dynamic_pressure()
@@ -224,6 +225,12 @@ class Rocket:
             self.velocity_v = 0
             self.velocity_h = 0
         
+        pass
+
+    def get_debug(self):
+        return {
+            
+        }
         pass
 
     def get_state(self):
