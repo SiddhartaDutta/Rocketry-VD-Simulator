@@ -9,8 +9,8 @@ class Rocket:
             json_data = json.load(file)
 
         self.engine_count = json_data['rocket']['engine']['engine_count']   # number
-        self.max_thrust = json_data['rocket']['engine']['max_thrust_N']    # N
-        self.min_throttle = json_data['rocket']['engine']['min_throttle']    # fraction (0.0-1.0)
+        self.max_thrust = json_data['rocket']['engine']['max_thrust_N']     # N
+        self.min_throttle = json_data['rocket']['engine']['min_throttle']   # fraction (0.0-1.0)
         self.burn_rate = json_data['rocket']['engine']['burn_rate']
 
         self.height = json_data['rocket']['dimensions']['height_m']         # m
@@ -23,25 +23,27 @@ class Rocket:
         self.OtF_ratio = json_data['rocket']['fuel']['OtF_ratio']           # ratio
         self.ox_density = json_data['rocket']['fuel']['ox_density']         # 
 
-        self.gravity = 0.0
-        self.thrust_v = 0.0           # N
-        self.thrust_h = 0.0     # N
+        self.gravity = 0.0                                                  # N
+        self.drag_v = 0.0                                                   # N
+        self.drag_h = 0.0                                                   # N
+        self.thrust_v = 0.0                                                 # N
+        self.thrust_h = 0.0                                                 # N
         self.dynamic_pressure = 0.0
-        self.acceleration_v = 0.0     # m/s^2
+        self.acceleration_v = 0.0                                           # m/s^2
         self.acceleration_h = 0.0
-        self.velocity_v = 0.0        # m/s
-        self.velocity_h = json_data['rocket']['physics']['h_vel_at_apogee']        # m/s
-        self.altitude = altitude    # m
+        self.velocity_v = 0.0                                               # m/s
+        self.velocity_h = json_data['rocket']['physics']['h_vel_at_apogee'] # m/s
+        self.altitude = altitude                                            # m
         self.x_position = 0.0
-        self.angle = 0.0 # vertical
+        self.angle = 0.0                                                    # vertical
 
         self.d_time = json_data['rocket']['physics']['d_time']
 
-        self.fuel = 0.0             # kg
-        self.oxidizer = 0.0         # kg
-        self.throttle = 0.0         # fraction (0.0-1.0)
+        self.fuel = 0.0                                                     # kg
+        self.oxidizer = 0.0                                                 # kg
+        self.throttle = 0.0                                                 # fraction (0.0-1.0)
         self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
-        self.total_mass = self.dry_weight + self.total_fuel_mass
+        self.total_mass = self.dry_weight + self.total_fuel_mass            # kg
 
     def burn_fuel(self):
         fuel_used = self.burn_rate * self.throttle * self.engine_count * self.d_time
@@ -67,11 +69,29 @@ class Rocket:
         return 0.5 * rho * velocity_total**2
 
     def compute_air_temp(self) -> float:
-        """Estimate air temperature at current altitude using ISA model."""
-        if self.altitude < 11000:
-            return 288.15 - 0.0065 * self.altitude  # troposphere
+        """
+        Estimate air temperature using the International Standard Atmosphere (ISA) model.
+
+        Returns:
+            float: Temperature in Kelvin at the current altitude.
+        """        
+        h = self.altitude
+        if h < 11000:
+            return 288.15 - 0.0065 * h
+        elif h < 20000:
+            return 216.65
+        elif h < 32000:
+            return 216.65 + 0.001 * (h - 20000)
+        elif h < 47000:
+            return 228.65 + 0.0028 * (h - 32000)
+        elif h < 51000:
+            return 270.65
+        elif h < 71000:
+            return 270.65 - 0.0028 * (h - 51000)
+        elif h <= 86000:
+            return 214.65 - 0.002 * (h - 71000)
         else:
-            return 216.65  # lower stratosphere
+            return 186.65
 
     def compute_speed_of_sound(self) -> float:
         """Compute speed of sound at current altitude (m/s)."""
@@ -80,7 +100,6 @@ class Rocket:
         T = self.compute_air_temperature()
         return math.sqrt(gamma * R * T)
         
-
     def compute_mach_number(self) -> float:
         v_total = math.sqrt(self.velocity_v**2 + self.velocity_h**2)
         a = self.compute_speed_of_sound()
@@ -105,6 +124,12 @@ class Rocket:
         aoa = self.angle - vel_angle
         return math.atan2(math.sin(aoa), math.cos(aoa))  # normalize to [-π, π]
 
+    def compute_projected_area(self) -> float:
+        frontal_area = math.pi * (self.diameter / 2) ** 2
+        side_area = math.pi * self.diameter * self.height
+
+        aoa = abs(self.compute_angle_of_attack())
+        return frontal_area * math.cos(aoa) ** 2 + side_area *math.sin(aoa) ** 2
 
     def compute_Cd(self) -> float:
         Re = self.compute_reynolds_number()
@@ -145,6 +170,12 @@ class Rocket:
     def compute_F_thrust(self) -> float:
         return self.throttle * self.max_thrust * self.engine_count
     
+    def compute_F_drag(self) -> float:
+        rho = self.compute_air_density_at_altitude()
+        v = math.sqrt(self.velocity_h ** 2 + self.velocity_v ** 2)
+        Cd = self.compute_Cd()
+        A = self.compute_projected_area()
+        return 0.5 * rho * v**2 * Cd * A
 
     def step(self):
 
@@ -163,6 +194,10 @@ class Rocket:
         self.thrust_v = thrust_total * math.cos(self.angle)
         self.thrust_h = thrust_total * math.sin(self.angle)
 
+        # update drag
+        drag_total = self.compute_F_drag()
+        self.drag_v = drag_total * math.cos(self.angle)
+        self.drag_h = drag_total * math.sin(self.angle)
 
         # update dynamic pressure on vehicle
         self.dynamic_pressure = self.compute_dynamic_pressure()
@@ -172,8 +207,8 @@ class Rocket:
             pass
 
         # update acceleration
-        self.acceleration_v = (self.thrust_v - self.gravity) / self.total_mass
-        self.acceleration_h = self.thrust_h / self.total_mass
+        self.acceleration_v = (self.thrust_v + self.drag_v - self.gravity) / self.total_mass
+        self.acceleration_h = (self.thrust_h + self.drag_h) / self.total_mass
 
         # update velocity
         self.velocity_v += self.acceleration_v * self.d_time
@@ -182,8 +217,6 @@ class Rocket:
         # update position
         self.altitude += self.velocity_v * self.d_time
         self.x_position += self.velocity_h * self.d_time
-
-
 
             # verify position
         if self.altitude < 0:
