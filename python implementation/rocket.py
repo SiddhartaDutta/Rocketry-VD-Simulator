@@ -29,6 +29,7 @@ class Rocket:
         self.thrust_v = 0.0                                                 # N
         self.thrust_h = 0.0                                                 # N
         self.dynamic_pressure = 0.0
+        self.exceeded_maxq = False                                          # boolean
         self.acceleration_v = 0.0                                           # m/s^2
         self.acceleration_h = 0.0
         self.velocity_v = 0.0                                               # m/s
@@ -205,7 +206,7 @@ class Rocket:
 
         # validate maxQ
         if self.dynamic_pressure > self.max_q:
-            pass
+            self.exceeded_maxq = True
 
         # update acceleration
         self.acceleration_v = (self.thrust_v + self.drag_v - self.gravity) / self.total_mass
