@@ -67,25 +67,72 @@ class Rocket:
         return 0.5 * rho * velocity_total**2
 
     def compute_air_temp(self) -> float:
-        pass
+        """Estimate air temperature at current altitude using ISA model."""
+        if self.altitude < 11000:
+            return 288.15 - 0.0065 * self.altitude  # troposphere
+        else:
+            return 216.65  # lower stratosphere
 
     def compute_speed_of_sound(self) -> float:
-        pass
+        """Compute speed of sound at current altitude (m/s)."""
+        gamma = 1.4
+        R = 287.05  # J/(kg·K)
+        T = self.compute_air_temperature()
+        return math.sqrt(gamma * R * T)
+        
 
     def compute_mach_number(self) -> float:
-        pass
+        v_total = math.sqrt(self.velocity_v**2 + self.velocity_h**2)
+        a = self.compute_speed_of_sound()
+        return v_total / a if a > 0 else 0
 
     def compute_air_viscosity(self) -> float:
-        pass
+        T0 = 288.15  # K
+        mu0 = 1.716e-5  # Reference viscosity
+        C = 110.4  # Sutherland's constant
+        T = self.compute_air_temperature()
+        return mu0 * ((T / T0) ** 1.5) * (T0 + C) / (T + C)
 
     def compute_reynolds_number(self) -> float:
-        pass
+        rho = self.compute_air_density_at_altitude()
+        mu = self.compute_dynamic_viscosity()
+        v = math.sqrt(self.velocity_v**2 + self.velocity_h**2)
+        L = self.diameter  # characteristic length (could use length or diameter)
+        return (rho * v * L) / mu if mu > 0 else 0
 
     def compute_angle_of_attack(self) -> float:
-        pass
+        vel_angle = math.atan2(self.velocity_h, self.velocity_v)
+        aoa = self.angle - vel_angle
+        return math.atan2(math.sin(aoa), math.cos(aoa))  # normalize to [-π, π]
+
 
     def compute_Cd(self) -> float:
-        pass
+        Re = self.compute_reynolds_number()
+        mach = self.compute_mach_number()
+        aoa = abs(self.compute_angle_of_attack())
+
+        # --- Viscous drag model (empirical) ---
+        if Re > 0:
+            Cd_viscous = 24 / Re + 6 / (1 + math.sqrt(Re)) + 0.4
+        else:
+            Cd_viscous = 1.0
+        Cd_viscous = min(max(Cd_viscous, 0.2), 1.5)
+
+        # --- Compressibility factor ---
+        if mach < 1:
+            compress_factor = 1
+        elif mach < 5:
+            compress_factor = 1 + 0.2 * (mach - 1)
+        else:
+            compress_factor = 2.0
+
+        # --- AoA effect (quadratic bump for larger AoA) ---
+        aoa_deg = math.degrees(aoa)
+        aoa_factor = 1 + 0.02 * aoa_deg**2
+
+        # Final drag coefficient
+        Cd_total = Cd_viscous * compress_factor * aoa_factor
+        return Cd_total
 
     def compute_accel_gravity_at_altitude(self) -> float:
         g0 = 9.80665
