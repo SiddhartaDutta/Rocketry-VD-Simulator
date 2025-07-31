@@ -8,6 +8,7 @@ class Rocket:
         with open(json_path) as file:
             json_data = json.load(file)
 
+        # read values
         self.engine_count = json_data['rocket']['engine']['engine_count']   # number
         self.max_thrust = json_data['rocket']['engine']['max_thrust_N']     # N
         self.min_throttle = json_data['rocket']['engine']['min_throttle']   # fraction (0.0-1.0)
@@ -23,6 +24,14 @@ class Rocket:
         self.OtF_ratio = json_data['rocket']['fuel']['OtF_ratio']           # ratio
         self.ox_density = json_data['rocket']['fuel']['ox_density']         # 
 
+        self.velocity_h = json_data['rocket']['physics']['h_vel_at_apogee'] # m/s
+
+        self.d_time = json_data['rocket']['physics']['d_time']
+
+        self.start_altitude = altitude                                      # m
+
+    def init(self):
+        # generated values
         self.gravity = 0.0                                                  # N
         self.drag_v = 0.0                                                   # N
         self.drag_h = 0.0                                                   # N
@@ -33,19 +42,28 @@ class Rocket:
         self.acceleration_v = 0.0                                           # m/s^2
         self.acceleration_h = 0.0
         self.velocity_v = 0.0                                               # m/s
-        self.velocity_h = json_data['rocket']['physics']['h_vel_at_apogee'] # m/s
-        self.altitude = altitude                                            # m
+
+        # direct positioning
+        self.altitude = self.start_altitude                                 # m
         self.x_position = 0.0
+        self.distance_to_target = 0.0
         self.angle = 0.0                                                    # vertical
         self.AoA = 0.0
 
-        self.d_time = json_data['rocket']['physics']['d_time']
-
+        # fuel
         self.fuel = 0.0                                                     # kg
         self.oxidizer = 0.0                                                 # kg
         self.throttle = 0.0                                                 # fraction (0.0-1.0)
         self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
         self.total_mass = self.dry_weight + self.total_fuel_mass            # kg
+
+        self.validate_setup_initial_positions()
+
+    def validate_setup_initial_positions(self):
+        pass
+
+    def reset(self):
+        self.init()
 
     def burn_fuel(self):
         fuel_used = self.burn_rate * self.throttle * self.engine_count * self.d_time
