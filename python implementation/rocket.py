@@ -37,6 +37,7 @@ class Rocket:
         self.altitude = altitude                                            # m
         self.x_position = 0.0
         self.angle = 0.0                                                    # vertical
+        self.AoA = 0.0
 
         self.d_time = json_data['rocket']['physics']['d_time']
 
@@ -129,13 +130,13 @@ class Rocket:
         frontal_area = math.pi * (self.diameter / 2) ** 2
         side_area = math.pi * self.diameter * self.height
 
-        aoa = abs(self.compute_angle_of_attack())
+        aoa = abs(self.AoA)
         return frontal_area * math.cos(aoa) ** 2 + side_area *math.sin(aoa) ** 2
 
     def compute_Cd(self) -> float:
         Re = self.compute_reynolds_number()
         mach = self.compute_mach_number()
-        aoa = abs(self.compute_angle_of_attack())
+        aoa = self.AoA
 
         # --- Viscous drag model (empirical) ---
         if Re > 0:
@@ -187,6 +188,16 @@ class Rocket:
         # update fuel/mass
         self.burn_fuel()
 
+        # update AoA
+        self.AoA = self.compute_angle_of_attack()
+
+        # update dynamic pressure on vehicle
+        self.dynamic_pressure = self.compute_dynamic_pressure()
+
+        # validate maxQ
+        if self.dynamic_pressure > self.max_q:
+            self.exceeded_maxq = True
+
         # update gravity
         self.gravity = self.compute_F_gravity()
 
@@ -196,17 +207,10 @@ class Rocket:
         self.thrust_h = thrust_total * math.sin(self.angle)
 
         # update drag
-        drag_total = self.compute_F_drag()
         angle_velocity = math.atan2(self.velocity_h, self.velocity_v)
+        drag_total = self.compute_F_drag()
         self.drag_v = -drag_total * math.cos(angle_velocity)
         self.drag_h = -drag_total * math.sin(angle_velocity)
-
-        # update dynamic pressure on vehicle
-        self.dynamic_pressure = self.compute_dynamic_pressure()
-
-        # validate maxQ
-        if self.dynamic_pressure > self.max_q:
-            self.exceeded_maxq = True
 
         # update acceleration
         self.acceleration_v = (self.thrust_v + self.drag_v - self.gravity) / self.total_mass
@@ -225,8 +229,6 @@ class Rocket:
             self.altitude = 0
             self.velocity_v = 0
             self.velocity_h = 0
-        
-        pass
 
     def get_debug(self):
         return self.__dict__
