@@ -28,9 +28,16 @@ class Rocket:
 
         self.d_time = json_data['rocket']['physics']['d_time']
 
-        self.start_altitude = altitude                                      # m
+        self.init()
 
     def init(self):
+        # user provided values
+        self.lat_start = 0.0
+        self.lon_start = 0.0
+        self.lat_end = 0.0
+        self.lon_end = 0.0
+        self.altitude = 0.0
+
         # generated values
         self.gravity = 0.0                                                  # N
         self.drag_v = 0.0                                                   # N
@@ -44,11 +51,14 @@ class Rocket:
         self.velocity_v = 0.0                                               # m/s
 
         # direct positioning
-        self.altitude = self.start_altitude                                 # m
+        self.altitude = 0.0      
+        self.downrange_distance = 0.0                                       # m
         self.x_position = 0.0
-        self.distance_to_target = 0.0
         self.angle = 0.0                                                    # vertical
         self.AoA = 0.0
+        self.LoS = 0.0
+            # triangulated distance (alt |__ downrange)
+        self.direct_distance = 0.0
 
         # fuel
         self.fuel = 0.0                                                     # kg
@@ -57,10 +67,25 @@ class Rocket:
         self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
         self.total_mass = self.dry_weight + self.total_fuel_mass            # kg
 
-        self.validate_setup_initial_positions()
+        # step data list
+        self.step_data: list[dict] = []
 
-    def validate_setup_initial_positions(self):
-        pass
+        # route validity
+        self.valid_route = self.validate_setup_initial_positions()
+
+    def validate_setup_initial_positions(self) -> bool:
+        phi1 = math.radians(self.lat_start)
+        phi2 = math.radians(self.lat_end)
+        dphi = phi2 - phi1
+        dlam = math.radians(self.lon_end - self.lon_start)
+
+        a = (math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2)
+
+        self.downrange_distance = self.R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        self.LoS = math.degrees(math.atan(self.alt / self.downrange_distance))
+        self.direct_distance = math.hypot(self.alt, self.downrange_distance)
+
+        return self.LoS >= 0.0
 
     def reset(self):
         self.init()
@@ -247,6 +272,9 @@ class Rocket:
             self.altitude = 0
             self.velocity_v = 0
             self.velocity_h = 0
+
+        # save each step
+        self.step_data.append(self.get_state())
 
     def get_debug(self):
         return self.__dict__
