@@ -1,5 +1,12 @@
 {
     "rocket": {
+        "init": {
+            "lat_start": 28.563197,
+            "lon_start": -80.0653,
+            "lat_end": 28.563197,
+            "lon_end": -80.576820,
+            "altitude": 65000
+        },
         "engine": {
             "engine_count": 9,
             "max_thrust_N": 845000,
