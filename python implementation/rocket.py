@@ -209,8 +209,7 @@ class Rocket:
 
     def _compute_accel_gravity_at_altitude(self) -> float:
         g0 = 9.80665
-        R = 6.371e6
-        return g0 * (R / (R + self.altitude)) ** 2
+        return g0 * (self.R / (self.R + self.altitude)) ** 2
     
     def _compute_F_gravity(self) -> float:
         return self.total_mass * self._compute_accel_gravity_at_altitude()
