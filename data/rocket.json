@@ -27,7 +27,7 @@
         },
         "physics": {
             "h_vel_at_apogee": 598.6,
-            "d_time": 1
+            "d_time": 0.01
         }
     }
 }

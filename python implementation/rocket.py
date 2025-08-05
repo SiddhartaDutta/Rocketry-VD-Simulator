@@ -65,7 +65,7 @@ class Rocket:
         self.fuel = 0.0                                                     # kg
         self.oxidizer = 0.0                                                 # kg
         self.throttle = 0.0                                                 # fraction (0.0-1.0)
-        self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
+        self.total_fuel_mass = self.fuel + (self.fuel * self.OtF_ratio)
         self.total_mass = self.dry_weight + self.total_fuel_mass            # kg
 
         # step data list
@@ -101,7 +101,7 @@ class Rocket:
         self.fuel -= fuel_used
         self.oxidizer -= fuel_used * self.OtF_ratio
 
-        self.total_fuel_mass = (self.fuel * self.fuel_density) + (self.fuel * self.OtF_ratio * self.ox_density)
+        self.total_fuel_mass = self.fuel + (self.fuel * self.OtF_ratio)
         self.total_mass = self.dry_weight + self.total_fuel_mass
 
     def _compute_air_density_at_altitude(self) -> float:
@@ -223,6 +223,8 @@ class Rocket:
         v = math.sqrt(self.velocity_h ** 2 + self.velocity_v ** 2)
         Cd = self._compute_Cd()
         A = self._compute_projected_area()
+        if v == 0:
+            return 0.0
         return 0.5 * rho * v**2 * Cd * A
 
     def step(self):
@@ -296,6 +298,9 @@ class Rocket:
             "fuel_remaining": self.fuel,
             "throttle": self.throttle
         }
+    
+    def get_step_data(self):
+        return self.step_data
     
 temp = Rocket('../data/rocket.json')
 temp.step()
