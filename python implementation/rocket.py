@@ -74,6 +74,9 @@ class Rocket:
         # route validity
         self.valid_route = self._validate_setup_initial_positions()
 
+    def reset(self):
+        self._init()
+
     def _validate_setup_initial_positions(self) -> bool:
         phi1 = math.radians(self.lat_start)
         phi2 = math.radians(self.lat_end)
@@ -82,14 +85,11 @@ class Rocket:
 
         a = (math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2)
 
-        self.downrange_distance = self.R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        self.downrange_distance = 2 * self.R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         self.LoS = math.degrees(math.atan(self.altitude / self.downrange_distance))
         self.direct_distance = math.hypot(self.altitude, self.downrange_distance)
 
         return self.LoS >= 0.0
-
-    def reset(self):
-        self._init()
 
     def _burn_fuel(self):
         fuel_used = self.burn_rate * self.throttle * self.engine_count * self.d_time
