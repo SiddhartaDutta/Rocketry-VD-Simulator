@@ -89,7 +89,7 @@ class Rocket:
         return self.LoS >= 0.0
 
     def reset(self):
-        self.init()
+        self._init()
 
     def _burn_fuel(self):
         fuel_used = self.burn_rate * self.throttle * self.engine_count * self.d_time
