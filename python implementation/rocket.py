@@ -86,8 +86,12 @@ class Rocket:
         a = (math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2)
 
         self.downrange_distance = 2 * self.R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        self.LoS = math.degrees(math.atan(self.altitude / self.downrange_distance))
         self.direct_distance = math.hypot(self.altitude, self.downrange_distance)
+
+        if self.downrange_distance == 0:
+            self.LoS = math.pi / 2
+        else:
+            self.LoS = math.atan(self.altitude / self.downrange_distance)
 
         return self.LoS >= 0.0
 
