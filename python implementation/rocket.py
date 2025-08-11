@@ -232,10 +232,6 @@ class Rocket:
 
     def step(self):
 
-        # ensure min throttle
-        if self.throttle < self.min_throttle and self.throttle != 0.0:
-            self.throttle = self.min_throttle
-
         # update fuel/mass
         self._burn_fuel()
 
@@ -306,13 +302,25 @@ class Rocket:
     def get_step_data(self):
         return self.step_data
     
-    def set_fuel():
-        pass
+    def set_fuel(self, fuel_mass: float):
+        # set fuel and oxidizer
+        self.fuel = fuel_mass
+        self.oxidizer = fuel_mass * self.OtF_ratio
 
-    def set_throttle():
-        pass
+        # recalc total mass
+        self.total_fuel_mass = self.fuel + self.oxidizer
+        self.total_mass = self.dry_weight + self.total_fuel_mass
 
-    def set_angle():
+    def set_throttle(self, throttle: float):
+        # ensure min throttle
+        if throttle:
+            self.throttle = min(1.0, max(self.min_throttle, throttle))
+        else:
+            self.throttle = 0        
+
+    def set_angle(self, angle: float):
+        # normalize to -pi to pi
+        self.angle = math.atan2(math.sin(angle), math.cos(angle))
         pass
     
 '''
