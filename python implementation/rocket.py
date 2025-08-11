@@ -55,7 +55,7 @@ class Rocket:
         # direct positioning
         self.downrange_distance = 0.0                                       # m
         self.x_position = 0.0
-        self.angle = 0.0                                                    # vertical
+        self.angle = -math.pi / 2                                           # vertical
         self.AoA = 0.0
         self.LoS = 0.0
             # triangulated distance (alt |__ downrange)
@@ -63,9 +63,9 @@ class Rocket:
 
         # fuel
         self.fuel = 0.0                                                     # kg
-        self.oxidizer = 0.0                                                 # kg
+        self.oxidizer = self.fuel * self.OtF_ratio                          # kg
         self.throttle = 0.0                                                 # fraction (0.0-1.0)
-        self.total_fuel_mass = self.fuel + (self.fuel * self.OtF_ratio)
+        self.total_fuel_mass = self.fuel + self.oxidizer
         self.total_mass = self.dry_weight + self.total_fuel_mass            # kg
 
         # step data list
@@ -105,7 +105,7 @@ class Rocket:
         self.fuel -= fuel_used
         self.oxidizer -= fuel_used * self.OtF_ratio
 
-        self.total_fuel_mass = self.fuel + (self.fuel * self.OtF_ratio)
+        self.total_fuel_mass = self.fuel + self.oxidizer
         self.total_mass = self.dry_weight + self.total_fuel_mass
 
     def _compute_air_density_at_altitude(self) -> float:
@@ -296,6 +296,7 @@ class Rocket:
             "accel_v": self.acceleration_v,
             "accel_h": self.acceleration_h,
             "angle": self.angle,
+            "AoA": self.AoA,
             "dynamic_pressure": self.dynamic_pressure,
             "total_mass": self.total_mass,
             "fuel_remaining": self.fuel,
@@ -305,6 +306,21 @@ class Rocket:
     def get_step_data(self):
         return self.step_data
     
+    def set_fuel():
+        pass
+
+    def set_throttle():
+        pass
+
+    def set_angle():
+        pass
+    
+'''
+RL AGENT CONTROLS
+- THRUST
+- INIT FUEL
+- ANGLE
+'''
 temp = Rocket('../data/rocket.json')
 temp.step()
 print(json.dumps(temp.get_debug(), indent= 4))
