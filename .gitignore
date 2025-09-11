@@ -1,0 +1,8 @@
+/venv
+/.vscode
+/build
+*.csv
+*.parquet
+notes.txt
+*/__pycache__
+*/test.py

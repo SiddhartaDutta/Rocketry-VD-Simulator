@@ -1,0 +1,33 @@
+{
+    "rocket": {
+        "init": {
+            "lat_start": 28.563197,
+            "lon_start": -80.0653,
+            "lat_end": 28.563197,
+            "lon_end": -80.576820,
+            "altitude": 65000
+        },
+        "engine": {
+            "engine_count": 9,
+            "max_thrust_N": 845000,
+            "min_throttle": 0.4,
+            "burn_rate": 232.13
+        },
+        "dimensions": {
+            "height_m": 41.2,
+            "diameter_m": 3.7,
+            "drag_coeff": 1,
+            "dry_weight": 25600,
+            "max_q": 50000
+        },
+        "fuel": {
+            "fuel_density": 830,
+            "OtF_ratio": 2.7,
+            "ox_density": 1170
+        },
+        "physics": {
+            "h_vel_at_apogee": 598.6,
+            "d_time": 0.01
+        }
+    }
+}
